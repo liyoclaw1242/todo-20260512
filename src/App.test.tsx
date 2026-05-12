@@ -44,6 +44,12 @@ function makeFakeStore() {
       if (t) t.completed = completed;
       return { rowsAffected: 1, lastInsertId: 0 };
     }
+    if (s.startsWith("delete from todos")) {
+      const id = params?.[0] as number;
+      const idx = todos.findIndex((x) => x.id === id);
+      if (idx !== -1) todos.splice(idx, 1);
+      return { rowsAffected: 1, lastInsertId: 0 };
+    }
     return { rowsAffected: 0, lastInsertId: 0 };
   });
 
@@ -143,6 +149,24 @@ describe("AC#3 — toggle completion", () => {
           text.className.includes("line-through") ||
           text.closest("[data-completed='true']") !== null
       ).toBe(true);
+    });
+  });
+});
+
+// ── AC#4: delete ──────────────────────────────────────────────────────────
+
+describe("AC#4 — deleting a todo", () => {
+  it("deleted item disappears from the list immediately", async () => {
+    render(<App />);
+    const titleInput = await screen.findByPlaceholderText(/title/i);
+    fireEvent.change(titleInput, { target: { value: "Walk the dog" } });
+    fireEvent.click(screen.getByRole("button", { name: /add/i }));
+    await screen.findByText("Walk the dog");
+
+    fireEvent.click(screen.getByRole("button", { name: /delete/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Walk the dog")).toBeNull();
     });
   });
 });
