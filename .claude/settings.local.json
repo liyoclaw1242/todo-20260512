@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mv CONTEXT-MAP.md .rlm/CONTEXT-MAP.md)",
+      "Bash(mv docs/adr/*.md .rlm/adr/)",
+      "Bash(mv docs/v2-todo.md .rlm/v2-todo.md)",
+      "Bash(mv docs/flow-visualization.html .rlm/flow-visualization.html)",
+      "Bash(mv src/intake/CONTEXT.md .rlm/bc/intake/CONTEXT.md)",
+      "Bash(git config *)",
+      "Bash(git commit -m ' *)",
+      "Bash(curl -sS \"https://raw.githubusercontent.com/garrytan/gstack/main/office-hours/SKILL.md\")",
+      "Bash(curl -sS \"https://raw.githubusercontent.com/garrytan/gstack/main/plan-ceo-review/SKILL.md\")",
+      "Bash(awk 'NR>500 && NR<1100')",
+      "Bash(git add *)",
+      "Bash(gh api *)",
+      "Bash(curl *)",
+      "Bash(uv sync *)",
+      "Bash(uv run *)",
+      "Bash(uv pip *)"
+    ]
+  }
+}
