@@ -8,6 +8,11 @@
 import Database from "@tauri-apps/plugin-sql";
 import type { Todo } from "./types.js";
 
+/**
+ * Persistent SQLite file path.
+ * Tauri resolves "sqlite:todos.db" relative to the app's data directory
+ * (`tauri::path::BaseDirectory::App`), so the file survives app restarts — AC#6.
+ */
 export const DB_PATH = "sqlite:todos.db";
 
 const CREATE_TODOS_TABLE = `
