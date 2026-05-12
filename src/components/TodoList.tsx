@@ -3,12 +3,13 @@ import TodoItem from "./TodoItem.js";
 
 interface Props {
   todos: Todo[];
+  today: string;
   onToggle: (id: number, completed: boolean) => void;
   onDelete: (id: number) => void;
   onUpdate: (id: number, title: string, dueDate: string | null) => void;
 }
 
-export default function TodoList({ todos, onToggle, onDelete, onUpdate }: Props) {
+export default function TodoList({ todos, today, onToggle, onDelete, onUpdate }: Props) {
   if (todos.length === 0) return null;
 
   return (
@@ -17,6 +18,7 @@ export default function TodoList({ todos, onToggle, onDelete, onUpdate }: Props)
         <TodoItem
           key={todo.id}
           todo={todo}
+          today={today}
           onToggle={onToggle}
           onDelete={onDelete}
           onUpdate={onUpdate}

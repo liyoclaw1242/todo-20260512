@@ -1,20 +1,35 @@
 import { useState } from "react";
 import type { Todo } from "../lib/types.js";
+import { getDueDateStatus } from "../lib/utils.js";
 import TodoForm from "./TodoForm.js";
 
 interface Props {
   todo: Todo;
+  /** ISO-8601 date string for "today" (YYYY-MM-DD). Injected so callers control time. */
+  today: string;
   onToggle: (id: number, completed: boolean) => void;
   onDelete: (id: number) => void;
   onUpdate: (id: number, title: string, dueDate: string | null) => void;
 }
 
-export default function TodoItem({ todo, onToggle, onDelete, onUpdate }: Props) {
+const ALERT_STYLES: Record<"overdue" | "today", React.CSSProperties> = {
+  overdue: { borderLeft: "3px solid #cc0000", paddingLeft: "0.4rem" },
+  today: { borderLeft: "3px solid #d97706", paddingLeft: "0.4rem" },
+};
+
+export default function TodoItem({ todo, today, onToggle, onDelete, onUpdate }: Props) {
   const [editing, setEditing] = useState(false);
+
+  // Computed synchronously during render — no useEffect, so no flicker (AC#3).
+  const alertStatus = getDueDateStatus(todo.due_date, todo.completed, today);
+  const liProps = {
+    style: alertStatus !== null ? ALERT_STYLES[alertStatus] : undefined,
+    "data-alert": alertStatus ?? undefined,
+  };
 
   if (editing) {
     return (
-      <li>
+      <li {...liProps}>
         <TodoForm
           mode="edit"
           initialTitle={todo.title}
@@ -30,7 +45,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onUpdate }: Props) 
   }
 
   return (
-    <li>
+    <li {...liProps}>
       <input
         type="checkbox"
         checked={todo.completed}

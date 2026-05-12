@@ -5,6 +5,9 @@ import TodoForm from "./components/TodoForm.js";
 import TodoList from "./components/TodoList.js";
 
 export default function App() {
+  // Computed once per render cycle, synchronously — no useEffect, so alert
+  // state is correct on the very first paint (AC#3: no flicker).
+  const today = new Date().toISOString().slice(0, 10);
   const [todos, setTodos] = useState<Todo[]>([]);
 
   useEffect(() => {
@@ -48,6 +51,7 @@ export default function App() {
       <TodoForm onAdd={handleAdd} />
       <TodoList
         todos={todos}
+        today={today}
         onToggle={handleToggle}
         onDelete={handleDelete}
         onUpdate={handleUpdate}
