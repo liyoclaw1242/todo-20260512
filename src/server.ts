@@ -1,4 +1,5 @@
 import { createServer as createHttpServer, type Server, type IncomingMessage, type ServerResponse } from "node:http";
+import { renderPage } from "../app/page.js";
 
 /**
  * Build the HTTP server. Pure factory — does not call listen() so tests can
@@ -10,6 +11,13 @@ export function createServer(): Server {
 
 function handler(req: IncomingMessage, res: ServerResponse): void {
   const url = req.url ?? "/";
+
+  if (req.method === "GET" && url === "/") {
+    const html = renderPage([]);
+    res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    res.end(html);
+    return;
+  }
 
   if (req.method === "GET" && url === "/health") {
     return json(res, 200, { status: "ok" });

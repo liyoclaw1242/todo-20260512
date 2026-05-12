@@ -13,7 +13,8 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "resolveJsonModule": true,
-    "noEmit": true
+    "noEmit": true,
+    "jsx": "preserve"
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "app/**/*.tsx", "components/**/*.tsx"]
 }
