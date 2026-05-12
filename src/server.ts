@@ -15,6 +15,10 @@ function handler(req: IncomingMessage, res: ServerResponse): void {
     return json(res, 200, { status: "ok" });
   }
 
+  if (req.method === "GET" && url === "/todos") {
+    return json(res, 200, { todos: [] });
+  }
+
   json(res, 404, { error: "not found" });
 }
 
