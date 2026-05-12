@@ -21,3 +21,23 @@ describe("filterTodos — AC#2: keyword filters titles", () => {
     expect(result[0]?.id).toBe("2");
   });
 });
+
+describe("filterTodos — AC#3: case-insensitive matching", () => {
+  it("UPPERCASE query matches lowercase title", () => {
+    const result = filterTodos(todos, "MILK");
+    expect(result).toHaveLength(1);
+    expect(result[0]?.id).toBe("1");
+  });
+
+  it("mixed-case query matches mixed-case title", () => {
+    const result = filterTodos(todos, "dog");
+    expect(result).toHaveLength(1);
+    expect(result[0]?.id).toBe("2");
+  });
+
+  it("lowercase query matches Title-case title", () => {
+    const result = filterTodos(todos, "walk");
+    expect(result).toHaveLength(1);
+    expect(result[0]?.id).toBe("2");
+  });
+});
