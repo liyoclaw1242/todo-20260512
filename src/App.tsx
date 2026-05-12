@@ -1,7 +1,33 @@
+import { useState, useEffect } from "react";
+import type { Todo } from "./lib/types.js";
+import { getTodos, createTodo } from "./lib/db.js";
+import TodoForm from "./components/TodoForm.js";
+import TodoList from "./components/TodoList.js";
+
 export default function App() {
+  const [todos, setTodos] = useState<Todo[]>([]);
+
+  useEffect(() => {
+    getTodos().then(setTodos).catch(console.error);
+  }, []);
+
+  async function handleAdd(title: string, dueDate?: string) {
+    const id = await createTodo(title, dueDate);
+    const newTodo: Todo = {
+      id,
+      title,
+      due_date: dueDate ?? null,
+      completed: false,
+      created_at: new Date().toISOString(),
+    };
+    setTodos((prev) => [...prev, newTodo]);
+  }
+
   return (
     <main>
       <h1>Todo</h1>
+      <TodoForm onAdd={handleAdd} />
+      <TodoList todos={todos} />
     </main>
   );
 }
