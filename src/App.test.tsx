@@ -1,5 +1,5 @@
 /**
- * Integration tests for <App /> — AC#2: add todo, appears in list immediately.
+ * Integration tests for <App /> — AC#2–AC#5 UI behaviours.
  *
  * External boundary mocked: @tauri-apps/plugin-sql (stateful in-memory store).
  */
@@ -36,6 +36,13 @@ function makeFakeStore() {
         created_at: new Date().toISOString(),
       });
       return { rowsAffected: 1, lastInsertId: id };
+    }
+    if (s.startsWith("update todos set completed")) {
+      const completed = params?.[0] as number;
+      const id = params?.[1] as number;
+      const t = todos.find((x) => x.id === id);
+      if (t) t.completed = completed;
+      return { rowsAffected: 1, lastInsertId: 0 };
     }
     return { rowsAffected: 0, lastInsertId: 0 };
   });
@@ -113,5 +120,29 @@ describe("AC#2 — adding a todo", () => {
     fireEvent.click(screen.getByRole("button", { name: /add/i }));
 
     expect(await screen.findByText("Doctor appointment")).toBeInTheDocument();
+  });
+});
+
+// ── AC#3: toggle → strikethrough ──────────────────────────────────────────
+
+describe("AC#3 — toggle completion", () => {
+  it("completed todo shows strikethrough on its text", async () => {
+    render(<App />);
+    const titleInput = await screen.findByPlaceholderText(/title/i);
+    fireEvent.change(titleInput, { target: { value: "Read book" } });
+    fireEvent.click(screen.getByRole("button", { name: /add/i }));
+    await screen.findByText("Read book");
+
+    const checkbox = screen.getByRole("checkbox");
+    fireEvent.click(checkbox);
+
+    await waitFor(() => {
+      const text = screen.getByText("Read book");
+      expect(
+        text.style.textDecoration === "line-through" ||
+          text.className.includes("line-through") ||
+          text.closest("[data-completed='true']") !== null
+      ).toBe(true);
+    });
   });
 });
