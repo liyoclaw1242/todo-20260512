@@ -22,6 +22,23 @@ describe("filterTodos — AC#2: keyword filters titles", () => {
   });
 });
 
+describe("filterTodos — AC#4: empty query restores full list", () => {
+  it("returns all todos when query is empty string", () => {
+    const result = filterTodos(todos, "");
+    expect(result).toHaveLength(3);
+  });
+
+  it("returns all todos when query is whitespace only", () => {
+    const result = filterTodos(todos, "   ");
+    expect(result).toHaveLength(3);
+  });
+
+  it("returns same reference array when query is empty (no unnecessary copy)", () => {
+    const result = filterTodos(todos, "");
+    expect(result).toBe(todos);
+  });
+});
+
 describe("filterTodos — AC#3: case-insensitive matching", () => {
   it("UPPERCASE query matches lowercase title", () => {
     const result = filterTodos(todos, "MILK");
