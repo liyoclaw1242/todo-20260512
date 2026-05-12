@@ -56,6 +56,40 @@ describe("GET / (main page)", () => {
   });
 });
 
+describe("GET / — AC#5: inline script uses only standard DOM APIs (no JS errors)", () => {
+  let server: Server;
+  let baseUrl: string;
+
+  beforeEach(async () => {
+    server = createServer();
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const { port } = server.address() as AddressInfo;
+    baseUrl = `http://127.0.0.1:${port}`;
+  });
+
+  afterEach(async () => {
+    await new Promise<void>((resolve, reject) => server.close((err) => (err ? reject(err) : resolve())));
+  });
+
+  it("page HTML does not use eval or document.write", async () => {
+    const res = await fetch(`${baseUrl}/`);
+    const html = await res.text();
+    expect(html).not.toContain("eval(");
+    expect(html).not.toContain("document.write(");
+  });
+
+  it("inline script uses addEventListener (no deprecated onX attribute on input)", async () => {
+    const res = await fetch(`${baseUrl}/`);
+    const html = await res.text();
+    // The input element itself must NOT have an oninput= attribute (that
+    // would require the HTML parser to evaluate JS in attribute context,
+    // which is less reliable cross-browser). Behaviour must be wired via
+    // addEventListener in the <script> block.
+    expect(html).not.toMatch(/input[^>]+oninput\s*=/);
+    expect(html).toContain("addEventListener");
+  });
+});
+
 describe("GET /todos", () => {
   let server: Server;
   let baseUrl: string;
