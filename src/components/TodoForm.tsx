@@ -1,20 +1,40 @@
 import { useState } from "react";
 
-interface Props {
+interface AddProps {
+  mode?: never;
   onAdd: (title: string, dueDate?: string) => void;
 }
 
-export default function TodoForm({ onAdd }: Props) {
-  const [title, setTitle] = useState("");
-  const [dueDate, setDueDate] = useState("");
+interface EditProps {
+  mode: "edit";
+  initialTitle: string;
+  initialDueDate: string | null;
+  onSave: (title: string, dueDate: string | null) => void;
+  onCancel: () => void;
+}
+
+type Props = AddProps | EditProps;
+
+export default function TodoForm(props: Props) {
+  const isEdit = props.mode === "edit";
+
+  const [title, setTitle] = useState(isEdit ? props.initialTitle : "");
+  const [dueDate, setDueDate] = useState(
+    isEdit ? (props.initialDueDate ?? "") : ""
+  );
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const trimmed = title.trim();
     if (!trimmed) return;
-    onAdd(trimmed, dueDate || undefined);
-    setTitle("");
-    setDueDate("");
+
+    if (!isEdit) {
+      props.onAdd(trimmed, dueDate || undefined);
+      setTitle("");
+      setDueDate("");
+    } else {
+      props.onSave(trimmed, dueDate || null);
+    }
   }
 
   return (
@@ -24,16 +44,25 @@ export default function TodoForm({ onAdd }: Props) {
         placeholder="Title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        aria-label="Title"
+        aria-label={isEdit ? undefined : "Title"}
       />
-      <label htmlFor="todo-due-date">Due date</label>
+      <label htmlFor={isEdit ? "edit-due-date" : "todo-due-date"}>Due date</label>
       <input
-        id="todo-due-date"
+        id={isEdit ? "edit-due-date" : "todo-due-date"}
         type="date"
         value={dueDate}
         onChange={(e) => setDueDate(e.target.value)}
       />
-      <button type="submit">Add</button>
+      {!isEdit ? (
+        <button type="submit">Add</button>
+      ) : (
+        <>
+          <button type="submit">Save</button>
+          <button type="button" onClick={props.onCancel}>
+            Cancel
+          </button>
+        </>
+      )}
     </form>
   );
 }

@@ -1,12 +1,34 @@
+import { useState } from "react";
 import type { Todo } from "../lib/types.js";
+import TodoForm from "./TodoForm.js";
 
 interface Props {
   todo: Todo;
   onToggle: (id: number, completed: boolean) => void;
   onDelete: (id: number) => void;
+  onUpdate: (id: number, title: string, dueDate: string | null) => void;
 }
 
-export default function TodoItem({ todo, onToggle, onDelete }: Props) {
+export default function TodoItem({ todo, onToggle, onDelete, onUpdate }: Props) {
+  const [editing, setEditing] = useState(false);
+
+  if (editing) {
+    return (
+      <li>
+        <TodoForm
+          mode="edit"
+          initialTitle={todo.title}
+          initialDueDate={todo.due_date}
+          onSave={(title, dueDate) => {
+            onUpdate(todo.id, title, dueDate);
+            setEditing(false);
+          }}
+          onCancel={() => setEditing(false)}
+        />
+      </li>
+    );
+  }
+
   return (
     <li>
       <input
@@ -22,6 +44,9 @@ export default function TodoItem({ todo, onToggle, onDelete }: Props) {
         {todo.title}
       </span>
       {todo.due_date && <small> — due {todo.due_date}</small>}
+      <button type="button" onClick={() => setEditing(true)}>
+        Edit
+      </button>
       <button type="button" onClick={() => onDelete(todo.id)}>
         Delete
       </button>

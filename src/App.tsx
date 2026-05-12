@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Todo } from "./lib/types.js";
-import { getTodos, createTodo, toggleTodo, deleteTodo } from "./lib/db.js";
+import { getTodos, createTodo, toggleTodo, deleteTodo, updateTodo } from "./lib/db.js";
 import TodoForm from "./components/TodoForm.js";
 import TodoList from "./components/TodoList.js";
 
@@ -35,11 +35,23 @@ export default function App() {
     setTodos((prev) => prev.filter((t) => t.id !== id));
   }
 
+  async function handleUpdate(id: number, title: string, dueDate: string | null) {
+    await updateTodo(id, title, dueDate);
+    setTodos((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, title, due_date: dueDate } : t))
+    );
+  }
+
   return (
     <main>
       <h1>Todo</h1>
       <TodoForm onAdd={handleAdd} />
-      <TodoList todos={todos} onToggle={handleToggle} onDelete={handleDelete} />
+      <TodoList
+        todos={todos}
+        onToggle={handleToggle}
+        onDelete={handleDelete}
+        onUpdate={handleUpdate}
+      />
     </main>
   );
 }

@@ -50,6 +50,14 @@ function makeFakeStore() {
       if (idx !== -1) todos.splice(idx, 1);
       return { rowsAffected: 1, lastInsertId: 0 };
     }
+    if (s.startsWith("update todos set title")) {
+      const title = params?.[0] as string;
+      const dueDate = params?.[1] as string | null;
+      const id = params?.[2] as number;
+      const t = todos.find((x) => x.id === id);
+      if (t) { t.title = title; t.due_date = dueDate; }
+      return { rowsAffected: 1, lastInsertId: 0 };
+    }
     return { rowsAffected: 0, lastInsertId: 0 };
   });
 
@@ -167,6 +175,28 @@ describe("AC#4 — deleting a todo", () => {
 
     await waitFor(() => {
       expect(screen.queryByText("Walk the dog")).toBeNull();
+    });
+  });
+});
+
+// ── AC#5: edit ────────────────────────────────────────────────────────────
+
+describe("AC#5 — editing a todo", () => {
+  it("updated title reflects in the list immediately", async () => {
+    render(<App />);
+    const titleInput = await screen.findByPlaceholderText(/title/i);
+    fireEvent.change(titleInput, { target: { value: "Original title" } });
+    fireEvent.click(screen.getByRole("button", { name: /add/i }));
+    await screen.findByText("Original title");
+
+    fireEvent.click(screen.getByRole("button", { name: /edit/i }));
+    const editInput = screen.getByDisplayValue("Original title");
+    fireEvent.change(editInput, { target: { value: "Updated title" } });
+    fireEvent.click(screen.getByRole("button", { name: /save/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Original title")).toBeNull();
+      expect(screen.getByText("Updated title")).toBeInTheDocument();
     });
   });
 });
