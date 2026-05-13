@@ -121,3 +121,28 @@ describe("AC#2 — typing filters list in real-time (no submit required)", () =>
     });
   });
 });
+
+// ── AC#3: Case-insensitive matching ──────────────────────────────────────────
+
+describe("AC#3 — matching is case-insensitive", () => {
+  it('"MILK" matches "buy milk"', async () => {
+    render(<App />);
+    const titleInput = await screen.findByPlaceholderText(/title/i);
+
+    fireEvent.change(titleInput, { target: { value: "buy milk" } });
+    fireEvent.click(screen.getByRole("button", { name: /add/i }));
+    await screen.findByText("buy milk");
+
+    fireEvent.change(titleInput, { target: { value: "walk dog" } });
+    fireEvent.click(screen.getByRole("button", { name: /add/i }));
+    await screen.findByText("walk dog");
+
+    const searchInput = screen.getByRole("searchbox");
+    fireEvent.change(searchInput, { target: { value: "MILK" } });
+
+    await waitFor(() => {
+      expect(screen.getByText("buy milk")).toBeInTheDocument();
+      expect(screen.queryByText("walk dog")).toBeNull();
+    });
+  });
+});
