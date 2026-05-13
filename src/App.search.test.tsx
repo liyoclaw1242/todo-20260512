@@ -110,6 +110,30 @@ async function addTodo(title: string) {
   await screen.findByText(title);
 }
 
+// ── AC#4 — clearing search restores full list ─────────────────────────────────
+
+describe("AC#4 — clearing search input restores full list", () => {
+  it("after filtering, clearing the search box shows all todos again", async () => {
+    render(<App />);
+    await addTodo("buy milk");
+    await addTodo("walk the dog");
+
+    const searchBox = screen.getByPlaceholderText(/search/i);
+
+    // Filter down to one item
+    fireEvent.change(searchBox, { target: { value: "milk" } });
+    await waitFor(() => {
+      expect(screen.queryByText("walk the dog")).toBeNull();
+    });
+
+    // Clear the search — full list must be restored
+    fireEvent.change(searchBox, { target: { value: "" } });
+
+    expect(screen.getByText("buy milk")).toBeInTheDocument();
+    expect(screen.getByText("walk the dog")).toBeInTheDocument();
+  });
+});
+
 // ── AC#1 — search input always visible ──────────────────────────────────────
 
 describe("AC#1 — search input visible at all times", () => {
