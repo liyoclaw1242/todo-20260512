@@ -44,13 +44,19 @@ export default function App() {
     );
   }
 
+  const filteredTodos = searchQuery.trim()
+    ? todos.filter((t) =>
+        t.title.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : todos;
+
   return (
     <main>
       <h1>Todo</h1>
       <SearchInput value={searchQuery} onChange={setSearchQuery} />
       <TodoForm onAdd={handleAdd} />
       <TodoList
-        todos={todos}
+        todos={filteredTodos}
         onToggle={handleToggle}
         onDelete={handleDelete}
         onUpdate={handleUpdate}

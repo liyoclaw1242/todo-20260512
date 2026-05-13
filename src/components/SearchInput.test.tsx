@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import SearchInput from "./SearchInput.js";
 import App from "../App.js";
 
@@ -79,7 +79,7 @@ beforeEach(() => {
   _resetDb();
 });
 
-// ── AC#1: SearchInput is visible on main screen ───────────────────────────────
+// ── AC#1: SearchInput is visible on main screen ──────────────────────────────
 
 describe("AC#1 — search input visible at all times", () => {
   it("renders a visible search input when App mounts", async () => {
@@ -94,5 +94,30 @@ describe("AC#1 — search input visible at all times", () => {
     render(<SearchInput value="" onChange={() => {}} />);
     const input = screen.getByRole("searchbox");
     expect(input).toBeInTheDocument();
+  });
+});
+
+// ── AC#2: Typing immediately filters visible list ─────────────────────────────
+
+describe("AC#2 — typing filters list in real-time (no submit required)", () => {
+  it("typing a keyword hides non-matching todos immediately", async () => {
+    render(<App />);
+    const titleInput = await screen.findByPlaceholderText(/title/i);
+
+    fireEvent.change(titleInput, { target: { value: "buy milk" } });
+    fireEvent.click(screen.getByRole("button", { name: /add/i }));
+    await screen.findByText("buy milk");
+
+    fireEvent.change(titleInput, { target: { value: "walk dog" } });
+    fireEvent.click(screen.getByRole("button", { name: /add/i }));
+    await screen.findByText("walk dog");
+
+    const searchInput = screen.getByRole("searchbox");
+    fireEvent.change(searchInput, { target: { value: "milk" } });
+
+    await waitFor(() => {
+      expect(screen.getByText("buy milk")).toBeInTheDocument();
+      expect(screen.queryByText("walk dog")).toBeNull();
+    });
   });
 });
