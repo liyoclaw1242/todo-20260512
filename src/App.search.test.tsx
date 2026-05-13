@@ -119,6 +119,30 @@ describe("AC#1 — search input visible at all times", () => {
   });
 });
 
+// ── AC#3 — case-insensitive matching ─────────────────────────────────────────
+
+describe("AC#3 — case-insensitive matching", () => {
+  it("uppercase query matches lowercase title ('MILK' matches 'buy milk')", async () => {
+    render(<App />);
+    await addTodo("buy milk");
+
+    const searchBox = screen.getByPlaceholderText(/search/i);
+    fireEvent.change(searchBox, { target: { value: "MILK" } });
+
+    expect(screen.getByText("buy milk")).toBeInTheDocument();
+  });
+
+  it("mixed-case query matches ('MiLk' matches 'buy milk')", async () => {
+    render(<App />);
+    await addTodo("buy milk");
+
+    const searchBox = screen.getByPlaceholderText(/search/i);
+    fireEvent.change(searchBox, { target: { value: "MiLk" } });
+
+    expect(screen.getByText("buy milk")).toBeInTheDocument();
+  });
+});
+
 // ── AC#2 — typing keyword filters immediately (no submit required) ───────────
 
 describe("AC#2 — real-time keyword filter", () => {

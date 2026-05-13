@@ -45,7 +45,9 @@ export default function App() {
   }
 
   const visibleTodos = searchQuery
-    ? todos.filter((t) => t.title.includes(searchQuery))
+    ? todos.filter((t) =>
+        t.title.toLowerCase().includes(searchQuery.toLowerCase())
+      )
     : todos;
 
   return (
