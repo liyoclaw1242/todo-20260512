@@ -118,3 +118,34 @@ describe("AC#1 — search input visible at all times", () => {
     expect(screen.getByPlaceholderText(/search/i)).toBeInTheDocument();
   });
 });
+
+// ── AC#2 — typing keyword filters immediately (no submit required) ───────────
+
+describe("AC#2 — real-time keyword filter", () => {
+  it("typing in the search box shows only matching todos without pressing Enter", async () => {
+    render(<App />);
+    await addTodo("buy milk");
+    await addTodo("walk the dog");
+
+    const searchBox = screen.getByPlaceholderText(/search/i);
+    fireEvent.change(searchBox, { target: { value: "milk" } });
+
+    // Matching item is visible; non-matching item is not
+    expect(screen.getByText("buy milk")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText("walk the dog")).toBeNull();
+    });
+  });
+
+  it("a non-matching query hides all todos", async () => {
+    render(<App />);
+    await addTodo("buy milk");
+
+    const searchBox = screen.getByPlaceholderText(/search/i);
+    fireEvent.change(searchBox, { target: { value: "zzznomatch" } });
+
+    await waitFor(() => {
+      expect(screen.queryByText("buy milk")).toBeNull();
+    });
+  });
+});

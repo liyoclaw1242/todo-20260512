@@ -44,13 +44,17 @@ export default function App() {
     );
   }
 
+  const visibleTodos = searchQuery
+    ? todos.filter((t) => t.title.includes(searchQuery))
+    : todos;
+
   return (
     <main>
       <h1>Todo</h1>
       <SearchInput value={searchQuery} onChange={setSearchQuery} />
       <TodoForm onAdd={handleAdd} />
       <TodoList
-        todos={todos}
+        todos={visibleTodos}
         onToggle={handleToggle}
         onDelete={handleDelete}
         onUpdate={handleUpdate}
