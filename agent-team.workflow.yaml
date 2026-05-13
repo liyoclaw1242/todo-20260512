@@ -42,7 +42,7 @@ entry:
     # of an inline `echo` because render_template treats literal `{...}`
     # as template-variable placeholders and chokes on JSON braces.
     repo_source:
-      command: "cat /d/todo-20260512/.workflow-repos.json"
+      command: "cat /Users/liyoclaw/Projects/todo-20260512/.workflow-repos.json"
     issue_source:
       # NOTE: must be a single physical line (no embedded newlines). The
       # runtime executes via `sh -c "<rendered>"`; YAML's `|` block scalar

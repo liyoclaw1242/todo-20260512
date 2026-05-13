@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [react()],
   clearScreen: false,
   server: {
-    port: 1420,
+    port: 1422,
     strictPort: true,
     host: host ?? false,
     ...(host
@@ -16,7 +16,7 @@ export default defineConfig({
           hmr: {
             protocol: "ws" as const,
             host,
-            port: 1421,
+            port: 1423,
           },
         }
       : {}),

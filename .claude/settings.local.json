@@ -16,7 +16,8 @@
       "Bash(curl *)",
       "Bash(uv sync *)",
       "Bash(uv run *)",
-      "Bash(uv pip *)"
+      "Bash(uv pip *)",
+      "Bash(pnpm tauri *)"
     ]
   }
 }
