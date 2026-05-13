@@ -3,9 +3,11 @@ import type { Todo } from "./lib/types.js";
 import { getTodos, createTodo, toggleTodo, deleteTodo, updateTodo } from "./lib/db.js";
 import TodoForm from "./components/TodoForm.js";
 import TodoList from "./components/TodoList.js";
+import SearchInput from "./components/SearchInput.js";
 
 export default function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     getTodos().then(setTodos).catch(console.error);
@@ -42,12 +44,19 @@ export default function App() {
     );
   }
 
+  const filteredTodos = searchQuery.trim()
+    ? todos.filter((t) =>
+        t.title.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : todos;
+
   return (
     <main>
       <h1>Todo</h1>
+      <SearchInput value={searchQuery} onChange={setSearchQuery} />
       <TodoForm onAdd={handleAdd} />
       <TodoList
-        todos={todos}
+        todos={filteredTodos}
         onToggle={handleToggle}
         onDelete={handleDelete}
         onUpdate={handleUpdate}
