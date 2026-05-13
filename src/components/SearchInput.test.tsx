@@ -146,3 +146,34 @@ describe("AC#3 — matching is case-insensitive", () => {
     });
   });
 });
+
+// ── AC#4: Clearing search restores full list ──────────────────────────────────
+
+describe("AC#4 — clearing search input restores full list", () => {
+  it("clearing the search shows all todos again", async () => {
+    render(<App />);
+    const titleInput = await screen.findByPlaceholderText(/title/i);
+
+    fireEvent.change(titleInput, { target: { value: "buy milk" } });
+    fireEvent.click(screen.getByRole("button", { name: /add/i }));
+    await screen.findByText("buy milk");
+
+    fireEvent.change(titleInput, { target: { value: "walk dog" } });
+    fireEvent.click(screen.getByRole("button", { name: /add/i }));
+    await screen.findByText("walk dog");
+
+    const searchInput = screen.getByRole("searchbox");
+
+    // Filter first
+    fireEvent.change(searchInput, { target: { value: "milk" } });
+    await waitFor(() => expect(screen.queryByText("walk dog")).toBeNull());
+
+    // Then clear
+    fireEvent.change(searchInput, { target: { value: "" } });
+
+    await waitFor(() => {
+      expect(screen.getByText("buy milk")).toBeInTheDocument();
+      expect(screen.getByText("walk dog")).toBeInTheDocument();
+    });
+  });
+});
