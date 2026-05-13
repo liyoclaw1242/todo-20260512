@@ -6,6 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { localDateString } from "./lib/utils.js";
 import App from "./App";
 
 // ── Stateful in-memory fake ─────────────────────────────────────────────────
@@ -198,5 +199,69 @@ describe("AC#5 — editing a todo", () => {
       expect(screen.queryByText("Original title")).toBeNull();
       expect(screen.getByText("Updated title")).toBeInTheDocument();
     });
+  });
+});
+
+// ── AC#3: alerts visible immediately (no flicker) ─────────────────────────
+//
+// Dates computed at test-run time using the same localDateString() used in
+// production — no clock mocking needed, so screen.findBy* polling works fine.
+
+describe("AC#3 — due-date alert is visible immediately on first render", () => {
+  // A date well in the past is always overdue, regardless of when the test runs.
+  const ALWAYS_OVERDUE = "2000-01-01";
+  // Today's local calendar date (matches what getDueDateStatus uses internally).
+  const todayStr = localDateString();
+
+  it("overdue alert on a newly-added todo is present without an extra render cycle", async () => {
+    render(<App />);
+    const titleInput = await screen.findByPlaceholderText(/title/i);
+    const dateInput = screen.getByLabelText(/due date/i);
+
+    fireEvent.change(titleInput, { target: { value: "Overdue task" } });
+    fireEvent.change(dateInput, { target: { value: ALWAYS_OVERDUE } });
+    fireEvent.click(screen.getByRole("button", { name: /add/i }));
+
+    // findByText awaits the item's first appearance; no additional waitFor needed
+    const titleEl = await screen.findByText("Overdue task");
+    expect(titleEl.closest("li")).toHaveAttribute("data-due-status", "overdue");
+  });
+
+  it("today alert on a newly-added todo is present without an extra render cycle", async () => {
+    render(<App />);
+    const titleInput = await screen.findByPlaceholderText(/title/i);
+    const dateInput = screen.getByLabelText(/due date/i);
+
+    fireEvent.change(titleInput, { target: { value: "Today task" } });
+    fireEvent.change(dateInput, { target: { value: todayStr } });
+    fireEvent.click(screen.getByRole("button", { name: /add/i }));
+
+    const titleEl = await screen.findByText("Today task");
+    expect(titleEl.closest("li")).toHaveAttribute("data-due-status", "today");
+  });
+
+  it("alert state is correct when todos are loaded from DB on launch", async () => {
+    // Pre-seed the DB layer: override mockLoad for this one render so that
+    // select() immediately yields an overdue todo, simulating app launch with
+    // existing data.
+    mockLoad.mockResolvedValueOnce({
+      execute: vi.fn().mockResolvedValue({ rowsAffected: 0, lastInsertId: 0 }),
+      select: vi.fn().mockResolvedValue([
+        {
+          id: 99,
+          title: "Pre-existing overdue",
+          due_date: ALWAYS_OVERDUE,
+          completed: 0,
+          created_at: "2000-01-01T00:00:00",
+        },
+      ]),
+    });
+
+    render(<App />);
+
+    // Wait for the todo to appear from the async getTodos() call on launch
+    const titleEl = await screen.findByText("Pre-existing overdue");
+    // No additional waitFor — alert is computed synchronously in render
+    expect(titleEl.closest("li")).toHaveAttribute("data-due-status", "overdue");
   });
 });
