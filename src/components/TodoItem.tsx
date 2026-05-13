@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { Todo } from "../lib/types.js";
 import TodoForm from "./TodoForm.js";
+import { getDueDateStatus } from "../lib/utils.js";
+import type { DueDateStatus } from "../lib/utils.js";
 
 interface Props {
   todo: Todo;
@@ -9,12 +11,22 @@ interface Props {
   onUpdate: (id: number, title: string, dueDate: string | null) => void;
 }
 
+/** Inline styles keyed by DueDateStatus — applied to the <li> element. */
+const dueDateStyles: Record<DueDateStatus, React.CSSProperties> = {
+  overdue: { borderLeft: "4px solid red", paddingLeft: "6px" },
+  today: { borderLeft: "4px solid orange", paddingLeft: "6px", background: "#fffbea" },
+  none: {},
+};
+
 export default function TodoItem({ todo, onToggle, onDelete, onUpdate }: Props) {
   const [editing, setEditing] = useState(false);
 
+  // Completed todos suppress alert styling (AC#5)
+  const status: DueDateStatus = todo.completed ? "none" : getDueDateStatus(todo.due_date);
+
   if (editing) {
     return (
-      <li>
+      <li data-due-status="none">
         <TodoForm
           mode="edit"
           initialTitle={todo.title}
@@ -30,7 +42,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onUpdate }: Props) 
   }
 
   return (
-    <li>
+    <li data-due-status={status} style={dueDateStyles[status]}>
       <input
         type="checkbox"
         checked={todo.completed}
